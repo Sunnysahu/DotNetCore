@@ -272,11 +272,29 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 
 // -----------------------------------------------------------------------------
 
+// Routing --> It is a way to map incoming HTTP requests to specific handlers based on the URL and HTTP method. In NET Core, you can define routes using app.Map(), app.MapGet(), app.MapPost(), app.MapPut(), app.MapDelete(), app.MapPatch(), app.MapHead(), app.MapOptions(), app.MapMethods(), app.MapFallback(), app.MapFallbackToFile(),app.MapGroup(). These methods take a URL pattern and a handler function that will be executed when a request matches the pattern and HTTP method.
+
+// app.Map() -> Creates a branch in the request pipeline based on a path prefix. Not tied to a specific HTTP method.
+// app.MapGet() -> Maps GET requests to a specific path. Only handles GET requests.
+// app.MapPost() -> Maps POST requests to a specific path. Only handles POST requests.
+// app.MapPut() -> Maps PUT requests to a specific path. Only handles PUT requests.
+// app.MapDelete() -> Maps DELETE requests to a specific path. Only handles DELETE requests.
+// app.MapPatch() -> Maps PATCH requests to a specific path. Only handles PATCH requests.
+// app.MapHead() -> Maps HEAD requests to a specific path. Only handles HEAD requests.
+// app.MapOptions() -> Maps OPTIONS requests to a specific path. Only handles OPTIONS requests.
+// app.MapMethods() -> Maps requests to a specific path based on specified HTTP methods. Allows handling multiple HTTP methods for the same path.
+// app.MapFallback() -> Defines a fallback route that will be executed if no other routes match the incoming request. Useful for handling 404 Not Found scenarios or providing a default response.
+// app.MapFallbackToFile() -> Defines a fallback route that serves a static file if no other routes match the incoming request. Useful for serving a default HTML page or other static content when a route is not found.
+// app.MapGroup() -> Allows grouping multiple routes under a common path prefix. This is useful for organizing related routes together and applying common middleware or configuration to the group.
+
+app.Map("/home/index", () => "Hello Sunny from Map! "); 
 
 
-
-
-
+app.MapFallback(async (context) =>
+{
+    string path = context.Request.Path;
+    await context.Response.WriteAsync(path + " Not Found. This is Fallback Route.");
+});
 
 
 
@@ -291,7 +309,7 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 // -----------------------------------------------------------------------------
 
 //await Task.Delay(5000);
-// 20th Feb --> 2338 --> https://t.me/c/2870057718/213/270
+// 20th Feb --> 2338 --> https://t.me/c/2870057718/213/285
 
 app.Run();
 
