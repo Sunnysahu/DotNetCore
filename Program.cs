@@ -263,6 +263,25 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 // Go to Solution Explorer --> Right Click on Project --> Add --> New Folder --> Name it Middleware --> Right Click on Middleware Folder --> Add --> MiddlewareClass --> Name it MyMiddleware.cs --> Write Your Logic in Invoke() Method and then register that class in Program.cs using app.UseMiddleware<MyMiddleware>() and add thus in top : builder.Services.AddTransient<MyMiddleware>();
 
 
+//app.UseCustomerMiddleware(); // Custom Middleware with Extension Method (NEW).
+
+//app.Run(async (HttpContext context) =>
+//{
+//    await context.Response.WriteAsync("Done + ");
+//});
+
+// -----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -271,10 +290,8 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 
 // -----------------------------------------------------------------------------
 
-
-
 //await Task.Delay(5000);
-// 18th Feb --> 5530 --> https://t.me/c/2870057718/213/270
+// 20th Feb --> 2338 --> https://t.me/c/2870057718/213/270
 
 app.Run();
 

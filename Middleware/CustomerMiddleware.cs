@@ -14,10 +14,10 @@ namespace Middleware.Middleware
             _next = next;
         }
 
-        public Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext)
         {
-
-            return _next(httpContext);
+            await httpContext.Response.WriteAsync("Hello From Customer Middleware (NEW) 1 + ");
+            await _next(httpContext);
         }
     }
 
