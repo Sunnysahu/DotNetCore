@@ -1,11 +1,5 @@
-//using Middleware.Middleware;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Middleware.Middleware;
-using System.Text;
-using System.Xml.Linq;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -349,40 +343,58 @@ app.MapGet("home/index/{id:int}", async (context) =>
 // This Hit URL -->  https://localhost:7207/home/5/99.99/Sunny/ABCDE/3fa85f64-5717-4562-b3fc-2c963f66afa6
 // --> This will only accept a number in the query name id, a decimal number in price, a string with only alphabets in name, a string with length of 5 in code and a valid guid in uid. If any of these constraints are not met, it will give an error.
 
-app.MapGet(
-    "home/{id:int}/{price:decimal}/{name:alpha}/{code:length(5)}/{uid:guid}",
-    (int id, decimal price, string name, string code, Guid uid, HttpContext context) =>
-    {
-        var userAgent = context.Request.Headers["User-Agent"].ToString();
-        return $"ID: {id}, Price: {price}, Name: {name}, Code: {code}, GUID: {uid}, UserAgent : {userAgent}";
-    });
+//app.MapGet(
+//    "home/{id:int}/{price:decimal}/{name:alpha}/{code:length(5)}/{uid:guid}",
+//    (int id, decimal price, string name, string code, Guid uid, HttpContext context) =>
+//    {
+//        var userAgent = context.Request.Headers["User-Agent"].ToString();
+//        return $"ID: {id}, Price: {price}, Name: {name}, Code: {code}, GUID: {uid}, UserAgent : {userAgent}";
+//    });
 
 // This Hit URL --> https://localhost:7207/home/10/25/Sunny/ABCDE/99.99/947dfefa-4ba9-49b7-81c4-b0ead06f2937
-app.MapGet(
-     "home/{id:int:min(1):max(100)}/{age:int}/{name:alpha:minlength(3):maxlength(10)}/{code:length(5):regex([A-Z]+)}/{price:decimal}/{uid:guid}",
- async (context) =>
-    {
-        var id = context.Request.RouteValues["id"];
-        var age = Convert.ToInt16(context.Request.RouteValues["age"]);
-        var name = context.Request.RouteValues["name"];
-        var code = context.Request.RouteValues["code"];
-        var price = context.Request.RouteValues["price"];
-        var uid = context.Request.RouteValues["uid"];
-        if (age > 60) 
-        { 
-            await context.Response.WriteAsync("Invalid Age");
-            return;
-        }
-        await context.Response.WriteAsync($"ID: {id}, Age: {age}, Name: {name}, Code: {code}, Price: {price}, GUID: {uid}");
-    });
+//app.MapGet(
+//     "home/{id:int:min(1):max(100)}/{age:int}/{name:alpha:minlength(3):maxlength(10)}/{code:length(5):regex([A-Z]+)}/{price:decimal}/{uid:guid}",
+// async (context) =>
+//    {
+//        var id = context.Request.RouteValues["id"];
+//        var age = Convert.ToInt16(context.Request.RouteValues["age"]);
+//        var name = context.Request.RouteValues["name"];
+//        var code = context.Request.RouteValues["code"];
+//        var price = context.Request.RouteValues["price"];
+//        var uid = context.Request.RouteValues["uid"];
+//        if (age > 60) 
+//        { 
+//            await context.Response.WriteAsync("Invalid Age");
+//            return;
+//        }
+//        await context.Response.WriteAsync($"ID: {id}, Age: {age}, Name: {name}, Code: {code}, Price: {price}, GUID: {uid}");
+//    });
 
 // This Hit URL --> https://localhost:7207/test/25/2024-01-01/9999999999/12.5/123.456/true
-app.MapGet(
-    "test/{age:int:range(18,60)}/{date:datetime}/{bigNumber:long}/{f:float}/{d:double}/{status:bool}",
-    (int age, DateTime date, long bigNumber, float f, double d, bool status) =>
-    {
-        return $"Age: {age}, Date: {date}, Long: {bigNumber}, Float: {f}, Double: {d}, Bool: {status}";
-    });
+//app.MapGet(
+//    "test/{age:int:range(18,60)}/{date:datetime}/{bigNumber:long}/{f:float}/{d:double}/{status:bool}",
+//    (int age, DateTime date, long bigNumber, float f, double d, bool status) =>
+//    {
+//        return $"Age: {age}, Date: {date}, Long: {bigNumber}, Float: {f}, Double: {d}, Bool: {status}";
+//    });
+
+// Access Files --> Create wwwroot Folder --> Add a File --> Name it test.txt --> Write Something in it --> Access it using https://localhost:7207/tgirl.jpg
+
+// app.UseStaticFiles(); // This will serve static files from wwwroot folder. You can also specify a different folder by passing options to UseStaticFiles() method. For example, app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "MyStaticFiles")), RequestPath = "/Static" }); This will serve static files from MyStaticFiles folder and you can access them using https://localhost:7207/Static/filename.ext
+
+app.UseStaticFiles(); // Now you can access the like in browser
+
+// To use Images outside of wwwroot folder, you can create a new folder in your project (e.g., "Images") and add your image files there. Then, you can configure the application to serve static files from that folder as well. Here's how you can do it: 
+    /*
+     var builder = WebApplication.CreateBuilder( 
+        new WebApplicationOptions
+        {
+            WebRootPath = "Asset"
+        } );
+    */
+
+
+
 
 
 // If no Route Match then this will Trigger
