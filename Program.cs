@@ -287,7 +287,19 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 // app.MapFallbackToFile() -> Defines a fallback route that serves a static file if no other routes match the incoming request. Useful for serving a default HTML page or other static content when a route is not found.
 // app.MapGroup() -> Allows grouping multiple routes under a common path prefix. This is useful for organizing related routes together and applying common middleware or configuration to the group.
 
-app.Map("/home/index", () => "Hello Sunny from Map! "); 
+app.Map("/home/index", () => "Hello Sunny from Map! ");
+
+// Route Parameters --> Route parameters use `{}` to capture values from the URL, like `/users/{id}`. They pass those values to the handler function. They make routes dynamic without creating separate routes for each value. You can also use multiple parameters in a single route.
+
+// This Hit URL --> https://localhost:7207/product/details/sunny
+
+app.Map("product/details/{name}", async (context) =>
+{
+    //string name = context.Request.RouteValues["name"]?.ToString() ?? "Unknown";
+    string name = Convert.ToString(context.Request.RouteValues["name"])?.ToString() ?? "Unknown";
+    await context.Response.WriteAsync($"Name : {name}");
+
+});
 
 
 app.MapFallback(async (context) =>
@@ -309,7 +321,7 @@ app.MapFallback(async (context) =>
 // -----------------------------------------------------------------------------
 
 //await Task.Delay(5000);
-// 20th Feb --> 2338 --> https://t.me/c/2870057718/213/285
+// 20th Feb --> 9557 --> https://t.me/c/2870057718/213/285
 
 app.Run();
 
