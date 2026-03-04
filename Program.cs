@@ -292,7 +292,7 @@ app.Map("/home/index", () => "Hello Sunny from Map! ");
 // Route Parameters --> Route parameters use `{}` to capture values from the URL, like `/users/{id}`. They pass those values to the handler function. They make routes dynamic without creating separate routes for each value. You can also use multiple parameters in a single route.
 
 // This Hit URL --> https://localhost:7207/product/details/sunny
-
+// Single Route Parameter
 app.Map("product/details/{name}", async (context) =>
 {
     //string name = context.Request.RouteValues["name"]?.ToString() ?? "Unknown";
@@ -301,7 +301,29 @@ app.Map("product/details/{name}", async (context) =>
 
 });
 
+// This Hit URL --> https://localhost:7207/product/sunny/jpg
+// Multiple Route Parameters
+app.Map("product/{filename}/{extension}", async (context) =>
+{
+    string filename = context.Request.RouteValues["filename"]?.ToString() ?? "Unknown";
+    string extension = context.Request.RouteValues["extension"]?.ToString() ?? "Unknown";
+    await context.Response.WriteAsync($"Filename : {filename}, Extension : {extension}");
+});
 
+
+// Optional Route Parameters --> You can make route parameters optional by adding a `?` after the parameter name in the route template. For example, `/users/{id?}` means that the `id` parameter is optional. If a request comes in without the `id`, the route will still match, and you can handle it accordingly in your handler function.
+
+// This Hit URL --> https://localhost:7207/company/sunny/001
+app.Map("company/{name}/{employeeId?}", async (context) =>
+{
+    var conn = context.Request;
+    
+    await context.Response.WriteAsync($"Name : {conn.RouteValues["name"]?.ToString() ?? "Unknown"} and Employee ID : {conn.RouteValues["employeeId"]?.ToString() ?? "Unknown"} ");
+});
+
+
+
+// If no Route Match then this will Trigger
 app.MapFallback(async (context) =>
 {
     string path = context.Request.Path;
