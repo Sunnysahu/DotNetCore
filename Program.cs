@@ -2,8 +2,10 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Middleware.Middleware;
 using System.Text;
+using System.Xml.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -287,40 +289,92 @@ app.MapGet("/name", () => "Hello Sunny from Map Get");
 // app.MapFallbackToFile() -> Defines a fallback route that serves a static file if no other routes match the incoming request. Useful for serving a default HTML page or other static content when a route is not found.
 // app.MapGroup() -> Allows grouping multiple routes under a common path prefix. This is useful for organizing related routes together and applying common middleware or configuration to the group.
 
-app.Map("/home/index", () => "Hello Sunny from Map! ");
+//app.Map("/home/index", () => "Hello Sunny from Map! ");
 
 // Route Parameters --> Route parameters use `{}` to capture values from the URL, like `/users/{id}`. They pass those values to the handler function. They make routes dynamic without creating separate routes for each value. You can also use multiple parameters in a single route.
 
 // This Hit URL --> https://localhost:7207/product/details/sunny
 // Single Route Parameter
-app.Map("product/details/{name}", async (context) =>
-{
-    //string name = context.Request.RouteValues["name"]?.ToString() ?? "Unknown";
-    string name = Convert.ToString(context.Request.RouteValues["name"])?.ToString() ?? "Unknown";
-    await context.Response.WriteAsync($"Name : {name}");
+//app.Map("product/details/{name}", async (context) =>
+//{
+//    //string name = context.Request.RouteValues["name"]?.ToString() ?? "Unknown";
+//    string name = Convert.ToString(context.Request.RouteValues["name"])?.ToString() ?? "Unknown";
+//    await context.Response.WriteAsync($"Name : {name}");
 
-});
+//});
 
 // This Hit URL --> https://localhost:7207/product/sunny/jpg
 // Multiple Route Parameters
-app.Map("product/{filename}/{extension}", async (context) =>
-{
-    string filename = context.Request.RouteValues["filename"]?.ToString() ?? "Unknown";
-    string extension = context.Request.RouteValues["extension"]?.ToString() ?? "Unknown";
-    await context.Response.WriteAsync($"Filename : {filename}, Extension : {extension}");
-});
+//app.Map("product/{filename}/{extension}", async (context) =>
+//{
+//    string filename = context.Request.RouteValues["filename"]?.ToString() ?? "Unknown";
+//    string extension = context.Request.RouteValues["extension"]?.ToString() ?? "Unknown";
+//    await context.Response.WriteAsync($"Filename : {filename}, Extension : {extension}");
+//});
 
 
 // Optional Route Parameters --> You can make route parameters optional by adding a `?` after the parameter name in the route template. For example, `/users/{id?}` means that the `id` parameter is optional. If a request comes in without the `id`, the route will still match, and you can handle it accordingly in your handler function.
 
 // This Hit URL --> https://localhost:7207/company/sunny/001
-app.Map("company/{name}/{employeeId?}", async (context) =>
+//app.Map("company/{name}/{employeeId?}", async (context) =>
+//{
+//    var conn = context.Request;
+
+//    await context.Response.WriteAsync($"Name : {conn.RouteValues["name"]?.ToString() ?? "Unknown"} and Employee ID : {conn.RouteValues["employeeId"]?.ToString() ?? "Unknown"} ");
+//});
+
+// Default Values in Route Parameters --> You can provide default values for route parameters by using the `=` syntax in the route template. For example, `/users/{id=1}` means that if the `id` parameter is not provided in the URL, it will default to `1`. This allows you to have a fallback value for parameters that may not always be included in the request.
+
+// This Hit URL --> /company --> /company/Sunny --> /company/Sunny/001 --> /company/001 --> /company/001/002 (This won't work because name is not optional but employeeId is optional)
+
+//app.MapGet("company/{name=Alias}/{employeeId?}", async (context) =>
+//{
+//    var conn = context.Request;
+
+//    await context.Response.WriteAsync($"Name : {conn.RouteValues["name"]?.ToString() ?? "Unknown"} and Employee ID : {conn.RouteValues["employeeId"]?.ToString() ?? "Unknown"} ");
+//});
+
+
+// Route Constraint --> Route constraints allow you to specify rules for route parameters, ensuring that they match certain criteria before the route is considered a match. Like int, alpha, length, range, regex etc. This helps in validating the incoming requests and ensures that the parameters meet the expected format or type before processing the request further.
+
+// This Hit URL --> https://localhost:7207/home/index/123 --> This will only accept a number in the query name id. 
+// This Hit URl -->  https://localhost:7207/home/index/sunny will give error
+
+
+app.MapGet("home/index/{id:int}", async (context) =>
 {
-    var conn = context.Request;
-    
-    await context.Response.WriteAsync($"Name : {conn.RouteValues["name"]?.ToString() ?? "Unknown"} and Employee ID : {conn.RouteValues["employeeId"]?.ToString() ?? "Unknown"} ");
+    await context.Response.WriteAsync($"ID : {context.Request.RouteValues["id"]}");
 });
 
+// This Hit URL -->  https://localhost:7207/home/5/99.99/Sunny/ABCDE/3fa85f64-5717-4562-b3fc-2c963f66afa6
+// --> This will only accept a number in the query name id, a decimal number in price, a string with only alphabets in name, a string with length of 5 in code and a valid guid in uid. If any of these constraints are not met, it will give an error.
+
+app.MapGet(
+    "home/{id:int}/{price:decimal}/{name:alpha}/{code:length(5)}/{uid:guid}",
+    (int id, decimal price, string name, string code, Guid uid, HttpContext context) =>
+    {
+        var userAgent = context.Request.Headers["User-Agent"].ToString();
+        return $"ID: {id}, Price: {price}, Name: {name}, Code: {code}, GUID: {uid}, UserAgent : {userAgent}";
+    });
+
+// This Hit URL --> https://localhost:7207/home/10/25/Sunny/ABCDE/99.99/947dfefa-4ba9-49b7-81c4-b0ead06f2937
+app.MapGet(
+     "home/{id:int:min(1):max(100)}/{age:int}/{name:alpha:minlength(3):maxlength(10)}/{code:length(5):regex([A-Z]+)}/{price:decimal}/{uid:guid}",
+ async (context) =>
+    {
+        var id = context.Request.RouteValues["id"];
+        var age = Convert.ToInt16(context.Request.RouteValues["age"]);
+        var name = context.Request.RouteValues["name"];
+        var code = context.Request.RouteValues["code"];
+        var price = context.Request.RouteValues["price"];
+        var uid = context.Request.RouteValues["uid"];
+        if (age > 60) 
+        { 
+            await context.Response.WriteAsync("Invalid Age");
+            return;
+        }
+        await context.Response.WriteAsync($"ID: {id}, Age: {age}, Name: {name}, Code: {code}, Price: {price}, GUID: {uid}");
+    });
 
 
 // If no Route Match then this will Trigger
@@ -329,6 +383,20 @@ app.MapFallback(async (context) =>
     string path = context.Request.Path;
     await context.Response.WriteAsync(path + " Not Found. This is Fallback Route.");
 });
+
+
+// -----------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -343,7 +411,7 @@ app.MapFallback(async (context) =>
 // -----------------------------------------------------------------------------
 
 //await Task.Delay(5000);
-// 20th Feb --> 9557 --> https://t.me/c/2870057718/213/285
+// 21st Feb --> 0544 --> https://t.me/c/2870057718/213/285
 
 app.Run();
 
