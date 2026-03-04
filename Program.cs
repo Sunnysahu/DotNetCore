@@ -376,6 +376,14 @@ app.MapGet(
         await context.Response.WriteAsync($"ID: {id}, Age: {age}, Name: {name}, Code: {code}, Price: {price}, GUID: {uid}");
     });
 
+// This Hit URL --> https://localhost:7207/test/25/2024-01-01/9999999999/12.5/123.456/true
+app.MapGet(
+    "test/{age:int:range(18,60)}/{date:datetime}/{bigNumber:long}/{f:float}/{d:double}/{status:bool}",
+    (int age, DateTime date, long bigNumber, float f, double d, bool status) =>
+    {
+        return $"Age: {age}, Date: {date}, Long: {bigNumber}, Float: {f}, Double: {d}, Bool: {status}";
+    });
+
 
 // If no Route Match then this will Trigger
 app.MapFallback(async (context) =>
